@@ -1,0 +1,17 @@
+[package]
+name = "pipeworkmc-vanilla-datagen"
+version = "0.1.0"
+edition = "2024"
+
+[lints.rust]
+unused_parens = "allow"
+
+
+[dependencies.serde]
+version = "1.0"
+
+[dependencies.smol]
+version = "2.0"
+
+[dependencies.surf]
+version = "2.3"
