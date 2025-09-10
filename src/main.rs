@@ -14,6 +14,9 @@ use download_server_files::download_server_files;
 mod run_datagen;
 use run_datagen::run_datagen;
 
+mod generate;
+use generate::generate;
+
 
 fn main() { smol::block_on(async {
     let version       = "1.21.8";
@@ -30,17 +33,17 @@ fn main() { smol::block_on(async {
         Err(err) if (err.kind() == io::ErrorKind::NotFound) => { },
         v => v.unwrap()
     };
-    fs::create_dir_all(generated_dir).await.unwrap();
 
     // Create cache dir.
-    match (fs::create_dir_all(cache_dir).await) {
+    match (fs::create_dir_all(&cache_dir).await) {
         Ok(_) => { },
         Err(err) if (err.kind() == io::ErrorKind::AlreadyExists) => { },
         v => v.unwrap()
     }
 
+    // Fetch files and generate output files.
     download_server_files(version, &server_jar_path, &server_mappings_path).await;
-
     run_datagen(&datagen_path).await;
+    generate(&cache_dir, &generated_dir).await;
 
 }) }
