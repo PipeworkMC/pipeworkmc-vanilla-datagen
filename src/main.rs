@@ -15,7 +15,6 @@ mod run_datagen;
 use run_datagen::run_datagen;
 
 mod generate;
-use generate::generate;
 
 
 fn main() { smol::block_on(async {
@@ -44,6 +43,7 @@ fn main() { smol::block_on(async {
     // Fetch files and generate output files.
     download_server_files(version, &server_jar_path, &server_mappings_path).await;
     run_datagen(&datagen_path).await;
-    generate(&cache_dir, &generated_dir).await;
+    generate::static_registries(&cache_dir, &generated_dir).await;
+    generate::vanilla_datapack(&cache_dir, &generated_dir).await;
 
 }) }
