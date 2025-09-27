@@ -143,16 +143,19 @@ where
         println!("  {id}");
         let data  = json_from_reader::<_, T>(File::open(&path).unwrap()).unwrap();
         let ident = id.to_case(Case::Constant);
+        write!(generated_file, "    /// `minecraft:{id}`\n").unwrap();
         write!(generated_file, "    pub const {ident} : Self = ").unwrap();
         write!(generated_file, "{}", syndebug_to_string(&data, true)).unwrap();
         write!(generated_file, ";\n").unwrap();
         entries.push((id, ident,));
     }
 
-    write!(generated_file, "\n    pub const VANILLA_ENTRIES : &'static [Self] = &[\n").unwrap();
+    write!(generated_file, "\n    /// All entries in the vanilla datapack.\n").unwrap();
+    write!(generated_file, "    pub const VANILLA_ENTRIES : &'static [Self] = &[\n").unwrap();
     for (_, ident,) in &entries { write!(generated_file, "        Self::{ident},\n").unwrap(); }
     write!(generated_file, "    ];\n\n").unwrap();
 
+    write!(generated_file, "\n    /// All entries in the vanilla datapack, as a [`RegistryEntry`] slice.\n").unwrap();
     write!(generated_file, "\n    pub const VANILLA_REGISTRY_ENTRIES : &'static [RegistryEntry<Self>] = &[\n").unwrap();
     for (id, ident,) in &entries { write!(generated_file, "        RegistryEntry {{ id : Ident::new(\"minecraft:{}\"), data : Self::{ident} }},\n", id.escape_debug()).unwrap(); }
     write!(generated_file, "    ];\n\n").unwrap();
