@@ -43,6 +43,7 @@ fn main() { smol::block_on(async {
     // Fetch files and generate output files.
     download_server_files(version, &server_jar_path, &server_mappings_path).await;
     run_datagen(&datagen_path).await;
+    generate::packets(&cache_dir, &generated_dir).await;
     generate::static_registries(&cache_dir, &generated_dir).await;
     generate::vanilla_datapack(&cache_dir, &generated_dir).await;
 

@@ -19,9 +19,9 @@ where
     let cache_dir     = cache_dir.as_ref();
     let generated_dir = generated_dir.as_ref();
 
-    println!("Generating entity types...");
     let data = json_from_reader::<_, StaticRegistries>(File::open(cache_dir.join("datagen/reports/registries.json")).unwrap()).unwrap();
 
+    println!("Generating entity types...");
     entity_types(&generated_dir.join("entity_type.rs"), data.entity_type).await;
 }
 #[derive(Deser)]
@@ -58,11 +58,8 @@ async fn entity_types(generated_path : &Path, entity_types : EntityTypeStaticReg
     write!(generated_file, "}}\n").unwrap();
 }
 #[derive(Deser)]
-#[serde(deny_unknown_fields)]
 struct EntityTypeStaticRegistry {
-    default     : Ident,
-    entries     : HashMap<Ident, StaticRegistryProtocolId>,
-    protocol_id : u32
+    entries : HashMap<Ident, StaticRegistryProtocolId>
 }
 
 #[derive(Deser)]
