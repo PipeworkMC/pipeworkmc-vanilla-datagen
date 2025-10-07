@@ -4,7 +4,11 @@
 )]
 
 
-use std::io;
+use std::{
+    fs::File,
+    io::{ self, Write },
+    path::Path
+};
 use smol::fs;
 
 
@@ -18,13 +22,14 @@ mod generate;
 
 
 fn main() { smol::block_on(async {
-    let version       = "1.21.8";
-    let generated_dir = "output/generated";
-    let cache_dir     = format!("output/cache/{version}");
+    let version       = (772, "1.21.8",);
+    let generated_dir = AsRef::<Path>::as_ref("output/generated");
+    let cache_dir     = format!("output/cache/{}", version.1);
+    let cache_dir     = AsRef::<Path>::as_ref(&cache_dir);
 
-    let server_jar_path      = format!("{cache_dir}/server.jar");
-    let server_mappings_path = format!("{cache_dir}/mappings.txt");
-    let datagen_path         = format!("{cache_dir}/datagen");
+    let server_jar_path      = cache_dir.join("server.jar");
+    let server_mappings_path = cache_dir.join("mappings.txt");
+    let datagen_path         = cache_dir.join("datagen");
 
     // Clear or create generated dir.
     match (fs::remove_dir_all(generated_dir).await) {
@@ -41,10 +46,19 @@ fn main() { smol::block_on(async {
     }
 
     // Fetch files and generate output files.
-    download_server_files(version, &server_jar_path, &server_mappings_path).await;
+    download_server_files(version.1, &server_jar_path, &server_mappings_path).await;
     run_datagen(&datagen_path).await;
     generate::packets(&cache_dir, &generated_dir).await;
     generate::static_registries(&cache_dir, &generated_dir).await;
     generate::vanilla_datapack(&cache_dir, &generated_dir).await;
+
+    {
+        let     generated_path = generated_dir.join("version.rs");
+        let mut generated_file = File::create(generated_path).unwrap();
+        writeln!(generated_file, "impl Version {{").unwrap();
+        writeln!(generated_file, "    /// The current version supported by pipework.").unwrap();
+        writeln!(generated_file, "    pub const CURRENT : Self = Self::by_id({}).unwrap();", version.0).unwrap();
+        writeln!(generated_file, "}}").unwrap();
+    }
 
 }) }
