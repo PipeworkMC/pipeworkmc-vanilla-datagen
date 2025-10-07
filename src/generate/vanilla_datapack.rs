@@ -136,29 +136,33 @@ where
 
     let mut source_reader = fs::read_dir(source_dir).await.unwrap();
     let mut entries       = Vec::new();
-    write!(generated_file, "impl<{impl_generics}> {}<{type_generics}> {{\n", ShortName::of::<T>()).unwrap();
+    writeln!(generated_file, "impl<{impl_generics}> {}<{type_generics}> {{", ShortName::of::<T>()).unwrap();
     while let Some(entry) = source_reader.try_next().await.unwrap() {
         let path  = entry.path();
         let id    = path.with_extension("").file_name().unwrap().to_str().unwrap().to_string();
         println!("  {id}");
         let data  = json_from_reader::<_, T>(File::open(&path).unwrap()).unwrap();
         let ident = id.to_case(Case::Constant);
-        write!(generated_file, "    /// `minecraft:{id}`\n").unwrap();
+        writeln!(generated_file, "    /// `minecraft:{id}`").unwrap();
         write!(generated_file, "    pub const {ident} : Self = ").unwrap();
         write!(generated_file, "{}", syndebug_to_string(&data, true)).unwrap();
-        write!(generated_file, ";\n").unwrap();
+        writeln!(generated_file, ";").unwrap();
         entries.push((id, ident,));
     }
 
-    write!(generated_file, "\n    /// All entries in the vanilla datapack.\n").unwrap();
-    write!(generated_file, "    pub const VANILLA_ENTRIES : &'static [Self] = &[\n").unwrap();
-    for (_, ident,) in &entries { write!(generated_file, "        Self::{ident},\n").unwrap(); }
-    write!(generated_file, "    ];\n\n").unwrap();
+    writeln!(generated_file, "\n    /// All entries in the vanilla datapack.").unwrap();
+    writeln!(generated_file, "    pub const VANILLA_ENTRIES : &'static [Self] = &[").unwrap();
+    for (_, ident,) in &entries {
+        writeln!(generated_file, "        Self::{ident},").unwrap();
+    }
+    writeln!(generated_file, "    ];\n").unwrap();
 
-    write!(generated_file, "\n    /// All entries in the vanilla datapack, as a [`RegistryEntry`] slice.\n").unwrap();
-    write!(generated_file, "\n    pub const VANILLA_REGISTRY_ENTRIES : &'static [RegistryEntry<Self>] = &[\n").unwrap();
-    for (id, ident,) in &entries { write!(generated_file, "        RegistryEntry {{ id : Ident::new(\"minecraft:{}\"), data : Self::{ident} }},\n", id.escape_debug()).unwrap(); }
-    write!(generated_file, "    ];\n\n").unwrap();
+    writeln!(generated_file, "\n    /// All entries in the vanilla datapack, as a [`RegistryEntry`] slice.").unwrap();
+    writeln!(generated_file, "\n    pub const VANILLA_REGISTRY_ENTRIES : &'static [RegistryEntry<Self>] = &[").unwrap();
+    for (id, ident,) in &entries {
+        writeln!(generated_file, "        RegistryEntry {{ id : Ident::new(\"minecraft:{}\"), data : Self::{ident} }},", id.escape_debug()).unwrap();
+    }
+    writeln!(generated_file, "    ];\n").unwrap();
 
-    write!(generated_file, "}}\n").unwrap();
+    writeln!(generated_file, "}}").unwrap();
 }

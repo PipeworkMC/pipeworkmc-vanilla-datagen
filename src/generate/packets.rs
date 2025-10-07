@@ -37,12 +37,12 @@ where
             let     generated_path = generated_dir.join(format!("{bound}_{state}.rs"));
             let mut generated_file = File::create(generated_path).unwrap();
 
-            write!(generated_file, "macro packet_id {{\n").unwrap();
+            writeln!(generated_file, "macro packet_id {{").unwrap();
             for (name, PacketType { protocol_id },) in by_id {
-                let name = name.split(":").skip(1).next().unwrap();
-                write!(generated_file, "    ( {name:?} $(,)? ) => {{ 0x{protocol_id:0>2X} }},\n").unwrap();
+                let name = name.split(":").nth(1).unwrap();
+                writeln!(generated_file, "    ( {name:?} $(,)? ) => {{ 0x{protocol_id:0>2X} }},").unwrap();
             }
-            write!(generated_file, "}}\n").unwrap();
+            writeln!(generated_file, "}}").unwrap();
         } }
     }
 

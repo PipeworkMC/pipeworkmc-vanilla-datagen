@@ -35,27 +35,27 @@ async fn entity_types(generated_path : &Path, entity_types : EntityTypeStaticReg
     fs::create_dir_all(generated_path.parent().unwrap()).await.unwrap();
     let mut generated_file = File::create(generated_path).unwrap();
 
-    write!(generated_file, "/// A character type.\n").unwrap();
-    write!(generated_file, "#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]\n").unwrap();
-    write!(generated_file, "pub enum CharacterType {{\n").unwrap();
-    for (id, _,) in &entity_types.entries {
+    writeln!(generated_file, "/// A character type.").unwrap();
+    writeln!(generated_file, "#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]").unwrap();
+    writeln!(generated_file, "pub enum CharacterType {{").unwrap();
+    for id in entity_types.entries.keys() {
         println!("  {}", id.path());
         let ident = id.path().to_case(Case::Pascal);
-        write!(generated_file, "    /// `minecraft:{id}`\n").unwrap();
-        write!(generated_file, "    {ident},\n").unwrap();
+        writeln!(generated_file, "    /// `minecraft:{id}`").unwrap();
+        writeln!(generated_file, "    {ident},").unwrap();
     }
-    write!(generated_file, "}}\n").unwrap();
-    write!(generated_file, "impl CharacterType {{\n").unwrap();
-    write!(generated_file, "    /// Returns this [`CharacterType`]'s protocol ID.\n").unwrap();
-    write!(generated_file, "    pub const fn protocol_id(&self) -> u32 {{\n").unwrap();
-    write!(generated_file, "        match (self) {{\n").unwrap();
+    writeln!(generated_file, "}}").unwrap();
+    writeln!(generated_file, "impl CharacterType {{").unwrap();
+    writeln!(generated_file, "    /// Returns this [`CharacterType`]'s protocol ID.").unwrap();
+    writeln!(generated_file, "    pub const fn protocol_id(&self) -> u32 {{").unwrap();
+    writeln!(generated_file, "        match (self) {{").unwrap();
     for (id, StaticRegistryProtocolId { protocol_id },) in &entity_types.entries {
         let ident = id.path().to_case(Case::Pascal);
-        write!(generated_file, "            Self::{ident} => {protocol_id},\n").unwrap();
+        writeln!(generated_file, "            Self::{ident} => {protocol_id},").unwrap();
     }
-    write!(generated_file, "        }}\n").unwrap();
-    write!(generated_file, "    }}\n").unwrap();
-    write!(generated_file, "}}\n").unwrap();
+    writeln!(generated_file, "        }}").unwrap();
+    writeln!(generated_file, "    }}").unwrap();
+    writeln!(generated_file, "}}").unwrap();
 }
 #[derive(Deser)]
 struct EntityTypeStaticRegistry {

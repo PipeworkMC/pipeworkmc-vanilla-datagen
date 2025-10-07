@@ -33,7 +33,7 @@ where
         .await.unwrap();
     let version_url = version_manifest.versions
         .into_iter()
-        .find(|v| &v.id == version)
+        .find(|v| v.id == version)
         .unwrap()
         .url;
     println!("Fetching {version} version info...");
